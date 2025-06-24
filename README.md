@@ -1,16 +1,14 @@
-# myapp
+# 📚 Novel Reader
 
-A new Flutter project.
+**Novel Reader** é um app de leitura de web novels feito com Flutter, com suporte a múltiplas fontes como Central, NovelMania e Illusia, favoritos, histórico de leitura, e visual moderno inspirado nos melhores leitores de conteúdo online.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## ✨ Recursos
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 🔍 Pesquisa por novels
+- 🏷️ Filtro por gêneros
+- 📖 Leitor de capítulos
+- 💾 Favoritos e histórico local
+- 📥 Download de capítulos como EPUB
+- 🌐 Integração com fontes como Central, NovelMania e Illusia
