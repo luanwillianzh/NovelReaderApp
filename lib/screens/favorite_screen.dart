@@ -28,7 +28,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background, // Usa a cor de fundo do tema
+      backgroundColor: colorScheme.surface, // Usa a cor de fundo do tema
       body: StreamBuilder<List<Novel>>(
         stream: _localDatabaseService.getFavoritesStream(),
         builder: (context, snapshot) {
@@ -85,7 +85,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: Text(
                 'Nenhuma novel na sua biblioteca.', // Texto atualizado
                 style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             );
@@ -120,7 +120,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color:
-                          colorScheme.surfaceVariant, // Fundo do item do grid
+                          colorScheme.surfaceContainerHighest, // Fundo do item do grid
                       borderRadius: BorderRadius.circular(
                         16,
                       ), // Bordas arredondadas
@@ -170,7 +170,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               ) {
                                 if (loadingProgress == null) return child;
                                 return Container(
-                                  color: colorScheme.surfaceVariant,
+                                  color: colorScheme.surfaceContainerHighest,
                                   child: Center(
                                     child: CircularProgressIndicator(
                                       value:

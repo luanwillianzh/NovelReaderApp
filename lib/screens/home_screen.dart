@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
@@ -248,6 +248,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // Renomeado de _HomeContent para ExploreContent
 class ExploreContent extends StatefulWidget {
+  const ExploreContent({super.key});
+
   @override
   _ExploreContentState createState() => _ExploreContentState();
 }
@@ -300,7 +302,7 @@ class _ExploreContentState extends State<ExploreContent> {
                   color: colorScheme.onSurfaceVariant.withOpacity(0.7),
                 ),
                 filled: true,
-                fillColor: colorScheme.surfaceVariant.withOpacity(0.4),
+                fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.4),
                 prefixIcon: Icon(
                   Icons.search_rounded,
                   color: colorScheme.onSurfaceVariant,
@@ -401,7 +403,7 @@ class _ExploreContentState extends State<ExploreContent> {
                     child: Text(
                       'Nenhuma novel encontrada.',
                       style: TextStyle(
-                        color: colorScheme.onBackground.withOpacity(0.7),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   );
@@ -431,7 +433,7 @@ class _ExploreContentState extends State<ExploreContent> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceVariant,
+                            color: colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -475,7 +477,7 @@ class _ExploreContentState extends State<ExploreContent> {
                                     ) {
                                       if (loadingProgress == null) return child;
                                       return Container(
-                                        color: colorScheme.surfaceVariant,
+                                        color: colorScheme.surfaceContainerHighest,
                                         child: Center(
                                           child: CircularProgressIndicator(
                                             value:

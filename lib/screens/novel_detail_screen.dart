@@ -122,7 +122,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
@@ -176,7 +176,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
               child: Text(
                 'Novel não encontrada.',
                 style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             );
@@ -243,57 +243,46 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  sliver: SliverGrid.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
-                          childAspectRatio: 3.5 / 1,
-                        ),
-                    itemCount: _filteredChapters.length,
-                    itemBuilder: (context, index) {
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
                       final chapter = _filteredChapters[index];
                       final originalIndex = _originalChapters.indexOf(chapter);
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ChapterContentScreen(
-                                    novelId: novel.id,
-                                    chapterId: chapter.id,
-                                    chapterTitle: chapter.title,
-                                    chapters: _originalChapters,
-                                    initialChapterIndex: originalIndex,
-                                  ),
+                      return Column(
+                        children: [
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: colorScheme.outline.withOpacity(0.2),
+                              ),
                             ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceVariant,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: colorScheme.outline.withOpacity(0.3),
+                            tileColor: colorScheme.surfaceContainerHighest,
+                            title: Text(
+                              chapter.title,
+                              style: TextStyle(color: colorScheme.onSurface),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ChapterContentScreen(
+                                        novelId: novel.id,
+                                        chapterId: chapter.id,
+                                        chapterTitle: chapter.title,
+                                        chapters: _originalChapters,
+                                        initialChapterIndex: originalIndex,
+                                      ),
+                                ),
+                              );
+                            },
                           ),
-                          padding: const EdgeInsets.all(12.0),
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            chapter.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSurface,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+                          const SizedBox(height: 8),
+                        ],
                       );
-                    },
+                    }, childCount: _filteredChapters.length),
                   ),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
@@ -390,7 +379,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return Container(
-              color: colorScheme.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               child: Center(
                 child: CircularProgressIndicator(
                   value:
@@ -414,7 +403,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
       decoration: BoxDecoration(
         border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(999),
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
@@ -466,7 +455,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
                     color: colorScheme.outline.withOpacity(0.5),
                   ),
                   borderRadius: BorderRadius.circular(999),
-                  color: colorScheme.surfaceVariant,
+                  color: colorScheme.surfaceContainerHighest,
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -488,77 +477,103 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
 
   /// Builds the action buttons (Start Reading, Download EPUB).
   Widget _buildActionButtons(Novel novel, ColorScheme colorScheme) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.chrome_reader_mode_rounded),
-            label: const Text('Ler Agora'),
-            onPressed: () {
-              if (novel.chapters.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => ChapterContentScreen(
-                          novelId: novel.id,
-                          chapterId: novel.chapters.first.id,
-                          chapterTitle: novel.chapters.first.title,
-                          chapters: novel.chapters,
-                          initialChapterIndex: 0,
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _localDb.getHistory(),
+      builder: (context, snapshot) {
+        String buttonText = 'Ler Agora';
+        ChapterSummary? continueChapter;
+
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          final history = snapshot.data!;
+          final lastRead = history.firstWhere(
+            (entry) => entry['novelId'] == novel.id,
+            orElse: () => {},
+          );
+          if (lastRead.isNotEmpty) {
+            buttonText = 'Continuar';
+            continueChapter = novel.chapters.firstWhere(
+              (chapter) => chapter.id == lastRead['chapterId'],
+              orElse: () => novel.chapters.first,
+            );
+          }
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.chrome_reader_mode_rounded),
+                label: Text(buttonText),
+                onPressed: () {
+                  if (novel.chapters.isNotEmpty) {
+                    final chapter = continueChapter ?? novel.chapters.first;
+                    final chapterIndex = novel.chapters.indexOf(chapter);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ChapterContentScreen(
+                              novelId: novel.id,
+                              chapterId: chapter.id,
+                              chapterTitle: chapter.title,
+                              chapters: novel.chapters,
+                              initialChapterIndex: chapterIndex,
+                            ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'Nenhum capítulo disponível para leitura.',
                         ),
+                        backgroundColor: colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Nenhum capítulo disponível para leitura.',
-                    ),
-                    backgroundColor: colorScheme.error,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 0,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.download_rounded),
-            label: const Text('Baixar EPUB'),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EpubDownloaderScreen(novel: novel),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 0,
                 ),
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colorScheme.primary,
-              side: BorderSide(color: colorScheme.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.download_rounded),
+                label: const Text('Baixar EPUB'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EpubDownloaderScreen(novel: novel),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colorScheme.primary,
+                  side: BorderSide(color: colorScheme.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -601,7 +616,7 @@ class _NovelDetailScreenState extends State<NovelDetailScreen> {
           color: colorScheme.onSurfaceVariant.withOpacity(0.7),
         ),
         filled: true,
-        fillColor: colorScheme.surfaceVariant.withOpacity(0.4),
+        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.4),
         prefixIcon: Icon(
           Icons.search_rounded,
           color: colorScheme.onSurfaceVariant,

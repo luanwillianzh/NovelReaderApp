@@ -231,9 +231,6 @@ class _EpubDownloaderScreenState extends State<EpubDownloaderScreen> {
       });
 
       final zipData = ZipEncoder().encode(archive);
-      if (zipData == null) {
-        throw Exception('Failed to encode EPUB archive.');
-      }
       final epubBytes = Uint8List.fromList(zipData);
 
       setState(() {
@@ -298,7 +295,7 @@ class _EpubDownloaderScreenState extends State<EpubDownloaderScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background, // Usa a cor de fundo do tema
+      backgroundColor: colorScheme.surface, // Usa a cor de fundo do tema
       appBar: AppBar(
         backgroundColor:
             colorScheme.surface, // Usa a cor de superfície para o AppBar
@@ -360,7 +357,7 @@ class _EpubDownloaderScreenState extends State<EpubDownloaderScreen> {
                     LinearProgressIndicator(
                       value: _downloadProgress,
                       backgroundColor:
-                          colorScheme.surfaceVariant, // Cor de fundo do tema
+                          colorScheme.surfaceContainerHighest, // Cor de fundo do tema
                       valueColor: AlwaysStoppedAnimation<Color>(
                         colorScheme.primary, // Cor de progresso do tema
                       ),
@@ -372,7 +369,7 @@ class _EpubDownloaderScreenState extends State<EpubDownloaderScreen> {
                     Text(
                       _downloadStatus,
                       style: TextStyle(
-                        color: colorScheme.onBackground.withOpacity(0.8),
+                        color: colorScheme.onSurface.withOpacity(0.8),
                         fontSize: 14,
                       ), // Cor do texto do tema
                       textAlign: TextAlign.center,
@@ -427,7 +424,7 @@ class _EpubDownloaderScreenState extends State<EpubDownloaderScreen> {
         vertical: 8,
       ), // Aumenta padding
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.4), // Fundo do tema
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.4), // Fundo do tema
         borderRadius: BorderRadius.circular(16), // Mais arredondado
         border: Border.all(
           color: colorScheme.outline.withOpacity(0.5),

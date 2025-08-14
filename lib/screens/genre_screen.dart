@@ -36,7 +36,7 @@ class _GenreScreenState extends State<GenreScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
@@ -104,7 +104,7 @@ class _GenreScreenState extends State<GenreScreen> {
               child: Text(
                 'Nenhuma novel encontrada para o gênero ${widget.genre}.',
                 style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             );
@@ -133,7 +133,7 @@ class _GenreScreenState extends State<GenreScreen> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceVariant,
+                      color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -175,7 +175,7 @@ class _GenreScreenState extends State<GenreScreen> {
                               ) {
                                 if (loadingProgress == null) return child;
                                 return Container(
-                                  color: colorScheme.surfaceVariant,
+                                  color: colorScheme.surfaceContainerHighest,
                                   child: Center(
                                     child: CircularProgressIndicator(
                                       value:

@@ -147,7 +147,7 @@ class ApiService {
           final novelGenres =
               novelData
                   .genres; // Access the genres list from GenreFilter object
-          if (novelGenres == null || !(novelGenres is List)) {
+          if (novelGenres is! List) {
             return false; // If 'genres' is null or not a list, exclude this novel
           }
 

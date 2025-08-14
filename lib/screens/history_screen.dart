@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           // Cores do AlertDialog para Material You
-          backgroundColor: colorScheme.surfaceVariant,
+          backgroundColor: colorScheme.surfaceContainerHighest,
           title: Text(
             'Limpar Histórico?',
             style: TextStyle(color: colorScheme.onSurfaceVariant),
@@ -110,7 +110,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background, // Usa a cor de fundo do tema
+      backgroundColor: colorScheme.surface, // Usa a cor de fundo do tema
       appBar: AppBar(
         backgroundColor:
             colorScheme.surface, // Usa a cor de superfície para o AppBar
@@ -186,7 +186,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: Text(
                 'Nenhum histórico de leitura encontrado.',
                 style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             );
@@ -231,7 +231,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   color:
                       colorScheme
-                          .surfaceVariant, // Usa surfaceVariant para o fundo do Card
+                          .surfaceContainerHighest, // Usa surfaceVariant para o fundo do Card
                   child: InkWell(
                     onTap: () async {
                       try {

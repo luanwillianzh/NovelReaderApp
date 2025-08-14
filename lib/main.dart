@@ -1,19 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart'
-    as http; // Importação mantida, embora não usada diretamente aqui
-import 'screens/home_screen.dart';
-import 'package:flutter_html/flutter_html.dart'; // Importação mantida
-import 'services/local_database_service.dart'; // Import the new local database service
+import 'package:flutter/services.dart'; // Necessário para MethodChannel
+// Importação mantida
+// Importação mantida
+
+// Substitua pelos seus imports reais para as telas
+import 'screens/novel_detail_screen.dart';
+import 'screens/home_screen.dart'; // Sua tela inicial
+import 'services/local_database_service.dart'; // Serviço de banco de dados local
 
 void main() async {
+  // Garante que os widgets do Flutter estejam inicializados antes de qualquer operação assíncrona
   WidgetsFlutterBinding.ensureInitialized();
-  await LocalDatabaseService.instance.init(); // Initialize the local database
+  // Inicializa o serviço de banco de dados local
+  await LocalDatabaseService.instance.init();
 
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // Define o MethodChannel para comunicação com o código nativo.
+  // O nome do canal ('com.thefool.novelreader/deep_linking') deve ser o mesmo usado no nativo.
+  static const platform = MethodChannel('com.thefool.novelreader/deep_linking');
+
+  @override
+  void initState() {
+    super.initState();
+    // Configura o manipulador de chamadas de método para receber dados do nativo.
+    platform.setMethodCallHandler(_handleMethodCall);
+  }
+
+  /// Manipula as chamadas de método recebidas do código nativo.
+  /// Espera o método 'handleDeepLink' com o argumento 'novel_id'.
+  Future<dynamic> _handleMethodCall(MethodCall call) async {
+    if (call.method == 'handleDeepLink') {
+      // Converte os argumentos para um mapa de String para dynamic, garantindo segurança de tipo.
+      final Map<String, dynamic> args = Map<String, dynamic>.from(
+        call.arguments,
+      );
+      final String? novelId = args['novel_id'];
+      // A lógica para 'chapter_id' foi removida, pois não será mais usada para navegação direta.
+
+      // Verifica se um novelId foi fornecido
+      if (novelId != null) {
+        // Agora, se novelId for fornecido, sempre navega para a tela de detalhes da novel.
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NovelDetailScreen(novelId: novelId),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +80,6 @@ class MyApp extends StatelessWidget {
         // cores no Material 3, use colorSchemeSeed.
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Inter', // Mantendo a fonte Inter
-
         // A cor de fundo principal do Scaffold será definida pelo ColorScheme.background
         // do tema gerado, que para o modo escuro será um cinza escuro.
         // Se você ABSOLUTAMENTE precisa de preto puro para AMOLED,

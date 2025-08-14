@@ -26,12 +26,15 @@ class ChapterContentScreen extends StatefulWidget {
   State<ChapterContentScreen> createState() => _ChapterContentScreenState();
 }
 
-class _ChapterContentScreenState extends State<ChapterContentScreen> {
+class _ChapterContentScreenState extends State<ChapterContentScreen>
+    with SingleTickerProviderStateMixin {
   late Future<Chapter> _chapterFuture;
   final ApiService _apiService = ApiService();
   final LocalDatabaseService _localDatabaseService =
       LocalDatabaseService.instance;
   late int _currentChapterIndex;
+  late AnimationController _controller;
+  late Animation<double> _fontSizeAnimation;
   double _fontSize = 16.0;
   static const double _minFontSize = 12.0;
   static const double _maxFontSize = 32.0;
@@ -39,9 +42,19 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
     _currentChapterIndex = widget.initialChapterIndex;
     _fetchChapterContent();
     _loadFontSize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _addChapterToHistory() async {
@@ -66,34 +79,36 @@ class _ChapterContentScreenState extends State<ChapterContentScreen> {
 
   Future<void> _loadFontSize() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedSize = prefs.getDouble('reader_font_size') ?? 16.0;
     setState(() {
-      _fontSize = prefs.getDouble('reader_font_size') ?? 16.0;
-      if (_fontSize < _minFontSize) _fontSize = _minFontSize;
-      if (_fontSize > _maxFontSize) _fontSize = _maxFontSize;
+      _fontSize = savedSize.clamp(_minFontSize, _maxFontSize);
     });
   }
 
-  Future<void> _saveFontSize(double newSize) async {
+  Future<void> _animateFontSize(double newSize) async {
     final prefs = await SharedPreferences.getInstance();
+    final previousSize = _fontSize;
+    _fontSizeAnimation = Tween<double>(
+        begin: previousSize,
+        end: newSize,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut))
+      ..addListener(() {
+        setState(() {
+          _fontSize = _fontSizeAnimation.value;
+        });
+      });
+    _controller.forward(from: 0);
     await prefs.setDouble('reader_font_size', newSize);
   }
 
   void _increaseFontSize() {
-    setState(() {
-      if (_fontSize < _maxFontSize) {
-        _fontSize += 2.0;
-        _saveFontSize(_fontSize);
-      }
-    });
+    final newSize = (_fontSize + 2.0).clamp(_minFontSize, _maxFontSize);
+    _animateFontSize(newSize);
   }
 
   void _decreaseFontSize() {
-    setState(() {
-      if (_fontSize > _minFontSize) {
-        _fontSize -= 2.0;
-        _saveFontSize(_fontSize);
-      }
-    });
+    final newSize = (_fontSize - 2.0).clamp(_minFontSize, _maxFontSize);
+    _animateFontSize(newSize);
   }
 
   @override

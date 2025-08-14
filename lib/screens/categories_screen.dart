@@ -59,7 +59,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       // Não temos AppBar aqui pois a HomeScreen já gerencia a AppBar
       body: FutureBuilder<List<Map<String, String>>>(
         // Tipo do FutureBuilder ajustado
@@ -113,7 +113,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               child: Text(
                 'Nenhum gênero encontrado.',
                 style: TextStyle(
-                  color: colorScheme.onBackground.withOpacity(0.7),
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
             );
@@ -135,7 +135,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
-                  color: colorScheme.surfaceVariant,
+                  color: colorScheme.surfaceContainerHighest,
                   child: InkWell(
                     onTap: () {
                       // Navega para a GenreScreen passando o ID do gênero
